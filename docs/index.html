@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Downstream: the teammate who tells the other teams</title>
+<meta name="description" content="A Switch agent that tells other teams when something they depend on changes, relays their questions, and chases sign-off.">
+<meta property="og:title" content="Downstream">
+<meta property="og:description" content="A Switch teammate that tells the other teams when something they depend on changes.">
+<meta property="og:image" content="demo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-2: #111a2e;
+    --card: #131d33;
+    --line: #22304d;
+    --text: #e6edf8;
+    --muted: #94a8c7;
+    --accent: #38bdf8;
+    --accent-2: #7dd3fc;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --radius: 14px;
+    --max: 1080px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+  nav { position: sticky; top: 0; z-index: 10; background: rgba(11,18,32,.86);
+        backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+  .brand { font-weight: 800; letter-spacing: -.01em; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .brand svg { flex: none; }
+  .links { display: flex; gap: 22px; font-size: 14px; }
+  .links a { color: var(--muted); }
+  .links a:hover { color: var(--text); text-decoration: none; }
+
+  header.hero { padding: 84px 0 40px; text-align: center; }
+  .pill { display: inline-block; font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+          border-radius: 999px; padding: 6px 14px; margin-bottom: 26px; background: var(--bg-2); }
+  h1 { font-size: clamp(44px, 8vw, 84px); line-height: 1.02; letter-spacing: -.035em; margin: 0 0 18px; font-weight: 800; }
+  .tagline { font-size: clamp(20px, 2.6vw, 26px); color: #cfdaee; margin: 0 auto 26px; max-width: 760px; }
+  .problem { color: var(--muted); max-width: 640px; margin: 0 auto 34px; font-size: 17px; }
+  .problem strong { color: var(--text); font-weight: 600; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px;
+         font-weight: 600; font-size: 15px; border: 1px solid var(--line); color: var(--text); background: var(--bg-2); }
+  .btn:hover { text-decoration: none; border-color: #36507e; }
+  .btn.primary { background: var(--accent); color: #04121f; border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-2); }
+
+  .waves { display: block; width: 100%; height: 70px; margin: 36px 0 0; }
+
+  section { padding: 56px 0; }
+  h2 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -.02em; margin: 0 0 10px; }
+  .lede { color: var(--muted); margin: 0 0 30px; max-width: 720px; }
+
+  .video { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line);
+           background: #000; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .video video { display: block; width: 100%; height: auto; }
+  .caption { color: var(--muted); font-size: 14px; margin-top: 12px; text-align: center; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 20px 18px; }
+  .step::before { counter-increment: step; content: counter(step); display: inline-grid; place-items: center;
+                  width: 28px; height: 28px; border-radius: 8px; background: rgba(56,189,248,.14); color: var(--accent-2);
+                  font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+  .step h3 { margin: 0 0 6px; font-size: 17px; }
+  .step p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .thread { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .msg { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 10px 0; }
+  .msg + .msg { border-top: 1px dashed #1f2c47; }
+  .av { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .av.a { background: #7c3aed; } .av.d { background: #f9a8b4; color: #4a1020; } .av.b { background: #0ea5e9; }
+  .who { font-weight: 600; font-size: 14px; } .who span { color: var(--muted); font-weight: 400; margin-left: 6px; font-size: 13px; }
+  .body { color: #d5deee; font-size: 15px; }
+  .body code { background: #1c2742; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+  .tag { color: var(--accent-2); font-weight: 500; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 13px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+  td:first-child { color: var(--accent-2); font-weight: 600; white-space: nowrap; }
+  td { color: #d5deee; }
+  .table { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; }
+  .table tr:last-child td { border-bottom: 0; }
+
+  pre { background: #08101d; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px;
+        overflow-x: auto; font-size: 13.5px; line-height: 1.7; margin: 0; color: #d5deee; }
+  pre .c { color: #6b7f9f; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .note { color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+  footer { border-top: 1px solid var(--line); padding: 30px 0 50px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  @media (max-width: 860px) {
+    .steps { grid-template-columns: 1fr 1fr; }
+    .two { grid-template-columns: 1fr; }
+    .links a:not(.gh) { display: none; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 0 16px; }
+    .steps { grid-template-columns: 1fr; }
+    header.hero { padding-top: 56px; }
+    td:first-child { white-space: normal; }
+    th, td { padding: 11px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="7" fill="#38bdf8"/><path d="M4 11c3-3 6 3 9 0s6 3 9 0M4 16c3-3 6 3 9 0s6 3 9 0" stroke="#04121f" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+      Downstream
+    </a>
+    <div class="links">
+      <a href="#demo">Demo</a>
+      <a href="#how">How it works</a>
+      <a href="#switch">Why Switch</a>
+      <a href="#run">Run it</a>
+      <a class="gh" href="https://github.com/ashank-crazy/downstream">GitHub →</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="pill">Flip the Switch hackathon · Track 01, Best Business Workflow</div>
+    <h1>Downstream</h1>
+    <p class="tagline">The teammate who tells the other teams.</p>
+    <p class="problem">Backend renames a field on Tuesday. Mobile finds out from a crash on Thursday.
+      <strong>Nobody did anything wrong.</strong> The people who needed to know just weren't in the channel where it was said.</p>
+    <div class="cta">
+      <a class="btn primary" href="#demo">▶ Watch the demo</a>
+      <a class="btn" href="https://github.com/ashank-crazy/downstream">View the code</a>
+    </div>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 70" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 20 C150 0 300 40 450 20 S750 0 900 20 S1100 40 1200 20" stroke="#38bdf8" stroke-width="3" fill="none"/>
+    <path d="M0 40 C150 20 300 60 450 40 S750 20 900 40 S1100 60 1200 40" stroke="#2a83ad" stroke-width="3" fill="none"/>
+    <path d="M0 60 C150 40 300 80 450 60 S750 40 900 60 S1100 80 1200 60" stroke="#1d5776" stroke-width="3" fill="none"/>
+  </svg>
+</header>
+
+<section id="demo">
+  <div class="wrap">
+    <h2>See it work</h2>
+    <p class="lede">A real run against Switch 0.31.0 and its bundled Mattermost. Alice's room on the left, the other teams' rooms on the right.</p>
+    <div class="video">
+      <video controls preload="metadata" poster="demo.png" playsinline>
+        <source src="downstream-demo.mp4" type="video/mp4">
+        Your browser can't play this video. <a href="downstream-demo.mp4">Download it</a>.
+      </video>
+    </div>
+    <p class="caption">2:55 · narrated and captioned</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lede">Downstream sits in every team's room through Switch. Each room has a <em>contract</em>, a few lines saying what it owns and what it depends on. Think CODEOWNERS for conversations.</p>
+    <div class="steps">
+      <div class="step"><h3>Knows who depends on what</h3><p>Reads each room's contract from its Switch instructions. Teams edit it by talking to it: <code>we depend on payments webhook</code>.</p></div>
+      <div class="step"><h3>Notices changes, stays quiet otherwise</h3><p>A message must say something changes <em>and</em> name something another room depends on. Questions and small talk get no reply.</p></div>
+      <div class="step"><h3>The author decides</h3><p>It asks in the author's own thread first. <code>send</code>, <code>send billing</code> or <code>skip</code>. It never posts into another team's room on its own.</p></div>
+      <div class="step"><h3>Briefs each affected room</h3><p>The original message, who said it, and exactly why this room is getting it.</p></div>
+      <div class="step"><h3>Relays both ways</h3><p>Questions in a briefed room's thread show up in the author's thread, and answers go back. Nobody has to join anyone else's channel.</p></div>
+      <div class="step"><h3>Chases, then closes the loop</h3><p><code>ack</code> and <code>not us</code> are tracked per room. Quiet rooms get reminders. When everyone has answered, the ripple closes and a ledger document records it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <div>
+      <h2>In the author's thread</h2>
+      <p class="lede">Within a second of the announcement, before anyone else hears about it.</p>
+    </div>
+    <div class="thread" aria-label="Example thread">
+      <div class="msg"><div class="av a">A</div><div><div class="who">Alice Chen<span>#api-platform</span></div>
+        <div class="body">Heads up: in the orders-api v2 response we're renaming <code>user_id</code> to <code>account_id</code>. Shipping Tuesday.</div></div></div>
+      <div class="msg"><div class="av d">••</div><div><div class="who">Downstream<span>bot</span></div>
+        <div class="body">🌊 This looks like a change other teams depend on.<br>
+          • <span class="tag">#mobile-app</span> depends on <code>user_id</code>, <code>orders-api</code><br>
+          • <span class="tag">#data-insights</span> depends on <code>user_id</code><br>
+          • <span class="tag">#billing</span> depends on <code>orders-api</code><br>
+          Reply <b>send</b> and I'll brief those rooms and carry their questions back here.</div></div></div>
+      <div class="msg"><div class="av b">💬</div><div><div class="who">relayed from <span class="tag" style="margin-left:4px">#mobile-app</span></div>
+        <div class="body">Bob: Will <code>user_id</code> stay as an alias for a release? App Store review takes ~5 days.</div></div></div>
+      <div class="msg"><div class="av d">••</div><div><div class="who">Downstream<span>bot</span></div>
+        <div class="body">🎉 Ripple #1 closed: every briefed room has signed off.<br>✅ #mobile-app (bob) · ✅ #data-insights (carol) · ➖ #billing (dan)</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="switch">
+  <div class="wrap">
+    <h2>Why it needs Switch</h2>
+    <p class="lede">Downstream isn't a chatbot bolted onto one channel. It works because Switch makes one agent a member of many rooms, shared by people and other agents, across whatever chat app a team uses. Take Switch away and nothing is left.</p>
+    <div class="table">
+      <table>
+        <thead><tr><th>Switch primitive</th><th>What Downstream does with it</th></tr></thead>
+        <tbody>
+          <tr><td>scope=all event stream</td><td>One connection hears every room Downstream belongs to, so changes are noticed where they're said, without anyone mentioning the bot.</td></tr>
+          <tr><td>Session placements</td><td>One placed session per room on that single connection, so every reply and document write lands in the right room.</td></tr>
+          <tr><td>Threads</td><td>Proposals, briefings, relays and reminders all live in threads, so channels stay readable.</td></tr>
+          <tr><td>Targeted messages</td><td>Proposals address the author; briefings address the room's people, so they get real notifications.</td></tr>
+          <tr><td>Room instructions</td><td>The first source for a room's contract.</td></tr>
+          <tr><td>Room documents</td><td><code>downstream-contract</code> and <code>downstream-ledger</code> in every room, readable by every person and agent there.</td></tr>
+          <tr><td>Linked rooms</td><td>Each delivered ripple links the source room to the affected room.</td></tr>
+          <tr><td>create_room &amp; templates</td><td>Seeds the demo org; a room template creates contract-carrying team rooms from Switch Console.</td></tr>
+          <tr><td>Kickoffs &amp; addressing</td><td>Answers template kickoffs as the person they were posted for; opens itself to everyone, because a teammate every team talks to can't be owner-only.</td></tr>
+          <tr><td>Collaboration bridges</td><td>Nothing in Downstream knows it's on Mattermost. The same agent works in Slack, Teams, Discord or Telegram rooms.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="run">
+  <div class="wrap">
+    <h2>Run it</h2>
+    <p class="lede">Everything runs on one laptop: Switch's own standalone compose (Postgres, switch-core, Gateway, bundled Mattermost), pinned to 0.31.0. You need Docker, <a href="https://docs.astral.sh/uv/">uv</a> and Python 3.11+. No API key.</p>
+<pre><span class="c"># 1. Switch, locally</span>
+git clone https://github.com/ashank-crazy/downstream &amp;&amp; cd downstream
+cp stack/.env.example stack/.env &amp;&amp; bash stack/generate-env-secrets.sh stack/.env downstream
+cd stack &amp;&amp; docker compose --env-file .env -p downstream --profile collab --profile gateway up -d &amp;&amp; cd ..
+
+<span class="c"># 2. Downstream</span>
+uv sync
+uv run downstream register     <span class="c"># registers @downstream and opens it to everyone</span>
+uv run downstream seed         <span class="c"># 5 demo people + 5 team rooms with contracts</span>
+DOWNSTREAM_NUDGE_SECONDS=45 uv run downstream run
+
+<span class="c"># 3. Open http://localhost:8065 as admin, then in another terminal:</span>
+uv run downstream play         <span class="c"># plays the demo conversation (~80 s)</span></pre>
+    <p class="note">Optional: set <code>ANTHROPIC_API_KEY</code> and <code>uv sync --extra claude</code> to let Claude decide which rooms are semantically affected. Without it, a deterministic rules engine explains every decision in one line. Full details in the <a href="https://github.com/ashank-crazy/downstream#readme">README</a>.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Downstream · built on <a href="https://github.com/sandbox-quantum/switch">Switch</a> · MIT</span>
+    <a href="https://github.com/ashank-crazy/downstream">github.com/ashank-crazy/downstream</a>
+  </div>
+</footer>
+
+</body>
+</html>

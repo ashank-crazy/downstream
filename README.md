@@ -1,5 +1,8 @@
 # Downstream
 
+[![tests](https://github.com/ashank-crazy/downstream/actions/workflows/tests.yml/badge.svg)](https://github.com/ashank-crazy/downstream/actions/workflows/tests.yml)
+[![project page](https://img.shields.io/badge/project%20page-ashank--crazy.github.io%2Fdownstream-38bdf8)](https://ashank-crazy.github.io/downstream/)
+
 **The teammate who tells the other teams.**
 
 A [Switch](https://github.com/sandbox-quantum/switch) agent that sits in every team's channel. When someone announces a change that another team depends on, Downstream briefs that team, carries their questions back and forth between the two threads, and keeps chasing until every affected team has signed off.
@@ -9,7 +12,7 @@ A [Switch](https://github.com/sandbox-quantum/switch) agent that sits in every t
 
 Flip the Switch hackathon · **Track 01, Best Business Workflow**
 
-**▶ [Watch the demo (2:55, narrated)](docs/downstream-demo.mp4)**
+**▶ [Watch the demo (2:55, narrated)](https://ashank-crazy.github.io/downstream/#demo)** · [download the MP4](docs/downstream-demo.mp4)
 
 [![Alice's thread in #api-platform on the left; the briefing, reminder and sign-off in #data-insights on the right](docs/demo.png)](docs/downstream-demo.mp4)
 

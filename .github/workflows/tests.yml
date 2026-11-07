@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync
+      - name: Unit and flow tests
+        run: uv run pytest -v
+
+  stack-config:
+    # The bundled Switch stack's compose file must resolve with a freshly
+    # generated env file, exactly as the README tells people to create it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate env and validate compose
+        run: |
+          cp stack/.env.example stack/.env
+          bash stack/generate-env-secrets.sh stack/.env downstream
+          cd stack
+          docker compose --env-file .env -p downstream --profile collab --profile gateway config --quiet
