@@ -9,7 +9,7 @@ A [Switch](https://github.com/sandbox-quantum/switch) agent that sits in every t
 
 Flip the Switch hackathon · **Track 01, Best Business Workflow**
 
-**▶ [Watch the demo (2:41, with narration)](docs/downstream-demo.mp4)**
+**▶ [Watch the demo (2:55, narrated)](docs/downstream-demo.mp4)**
 
 [![Alice's thread in #api-platform on the left; the briefing, reminder and sign-off in #data-insights on the right](docs/demo.png)](docs/downstream-demo.mp4)
 
