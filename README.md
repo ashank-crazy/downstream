@@ -73,7 +73,7 @@ Downstream is not a chatbot bolted onto one channel. It only works because Switc
 | **`create_room` & room templates** | `downstream seed` builds the demo org through Downstream's own operations, bridged to Mattermost. [`templates/team-room.template.yaml`](templates/team-room.template.yaml) creates a contract-carrying team room from Switch Console (checked against the server with `create_room_from_yaml`). |
 | **Kickoffs posted on someone's behalf** | A template's `@downstream contract` kickoff, which Switch posts with `on_behalf_of`, is answered as that person. |
 | **Addressing policy** | `register` opens the agent to everyone through the Gateway (`PUT /agents/{id}/addressing-policy`), because a teammate every team talks to can't be owner-only. |
-| **Collaboration bridges** | Nothing in Downstream knows it's on Mattermost. The same agent works unchanged in Slack, Teams, Discord or Telegram rooms. |
+| **Collaboration bridges** | Nothing in Downstream knows it's on Mattermost: it only talks to Switch, so the same agent is meant to run unchanged in Slack, Teams, Discord or Telegram rooms. (Built and tested on Mattermost.) |
 
 ## Run it
 
