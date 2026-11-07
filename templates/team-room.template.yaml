@@ -1,0 +1,43 @@
+# A team room that Downstream watches, with the room's contract built in.
+#
+# Create it from Switch Console ("Create from template"), from the Gateway's
+# POST /rooms/from-yaml, or by asking any agent with the create_room_from_yaml
+# tool. The `Owns:` / `Depends on:` lines in the instructions are the room's
+# contract: Downstream reads them when it joins and mirrors them into the
+# room's `downstream-contract` document. People can change them later by
+# telling it (`@downstream we depend on …`).
+version: 1
+
+params:
+  team:
+    type: string
+    description: The team's room name
+    pattern: "[a-z][a-z0-9-]*"
+  owns:
+    type: string
+    description: What this team owns (APIs, fields, services, schedules), comma separated
+  depends:
+    type: string
+    description: What this team relies on from other teams, comma separated
+    default: nothing
+  bridge:
+    type: bridge
+    description: Where the room is mirrored. The server's default app is chosen.
+    default: [$first]
+
+room:
+  name: "{team}"
+  description: "Team room for {team}. Downstream briefs other teams when a change here affects them."
+  bridge: "{bridge}"
+  channel_type: channel_public
+  agents: ["downstream"]
+  users: ["{$creator}"]
+  instructions: |
+    Owns: {owns}
+    Depends on: {depends}
+
+    Downstream watches this room. When someone here announces a change to
+    something another room relies on, it asks the author whether to brief
+    those rooms, carries their questions back, and tracks who signed off.
+
+kickoff: "@downstream contract"
