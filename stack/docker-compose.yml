@@ -171,6 +171,9 @@ services:
       # which in the embedded room view is chrome the user cannot meaningfully
       # act on and has to dismiss per account.
       MM_SERVICESETTINGS_ENABLEONBOARDINGFLOW: "false"
+      # Downstream (added): show thread replies inline in the channel, so its
+      # proposals, briefings and relays are visible without opening each thread.
+      MM_SERVICESETTINGS_COLLAPSEDTHREADS: default_off
       # Agents post `switchdash://session?…` deeplinks so a human can jump from
       # a message to the session behind it. Mattermost only turns known schemes
       # into links, so without this they render as unclickable plain text.

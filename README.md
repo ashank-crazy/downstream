@@ -9,6 +9,10 @@ A [Switch](https://github.com/sandbox-quantum/switch) agent that sits in every t
 
 Flip the Switch hackathon · **Track 01, Best Business Workflow**
 
+**▶ [Watch the demo (2:41, with narration)](docs/downstream-demo.mp4)**
+
+[![Alice's thread in #api-platform on the left; the briefing, reminder and sign-off in #data-insights on the right](docs/demo.png)](docs/downstream-demo.mp4)
+
 ---
 
 ## What it does
@@ -73,7 +77,7 @@ Downstream is not a chatbot bolted onto one channel. It only works because Switc
 You need Docker, [uv](https://docs.astral.sh/uv/) and Python 3.11+. The `stack/` folder holds Switch's own standalone compose file (Postgres, switch-core, Gateway, and a bundled Mattermost), pinned to Switch **0.31.0** (agent protocol 9), the version this was built and tested against. Everything runs on one laptop.
 
 ```bash
-git clone https://github.com/<you>/downstream && cd downstream
+git clone https://github.com/ashank-crazy/downstream && cd downstream
 
 # 1. Switch, locally (first boot pulls ~2.5 GB; Mattermost runs emulated on Apple Silicon)
 cp stack/.env.example stack/.env && bash stack/generate-env-secrets.sh stack/.env downstream
